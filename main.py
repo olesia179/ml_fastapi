@@ -1,16 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import joblib
+import pandas as pd
 from cleaner.cleaner import Cleaner
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
 from sklearn.compose import make_column_transformer
 from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV, ShuffleSplit
 import time
-from sklearn.metrics import mean_absolute_error
 
 df = Cleaner.clean_data()
 
@@ -110,32 +107,32 @@ class request_body(BaseModel):
 @app.post('/predict')
 def predict(data : request_body):
     # Making the data in a form suitable for prediction
-    test_data = [[
-        data.bedroomCount,
-        data.habitableSurface,
-        data.facedeCount,
-        data.streetFacadeWidth,
-        data.kitchenSurface,
-        data.landSurface,
-        data.terraceSurface,
-        data.gardenSurface,
-        data.toiletCount,
-        data.bathroomCount,
-        data.type,
-        data.subtype,
-        data.postCode,
-        data.hasBasement,
-        data.buildingCondition,
-        data.buildingConstructionYear,
-        data.hasTerrace,
-        data.floodZoneType,
-        data.heatingType,
-        data.kitchenType,
-        data.gardenOrientation,
-        data.hasSwimmingPool,
-        data.terraceOrientation,
-        data.epcScore
-    ]]
+    new_house = pd.DataFrame({
+                'bedroomCount': [data.bedroomCount],
+                'habitableSurface': [data.habitableSurface],
+                'facedeCount': [data.facedeCount],
+                'streetFacadeWidth': [data.streetFacadeWidth],
+                'kitchenSurface': [data.kitchenSurface],
+                'landSurface': [data.landSurface],
+                'terraceSurface': [data.terraceSurface],
+                'gardenSurface': [data.gardenSurface],
+                'toiletCount': [data.toiletCount],
+                'bathroomCount': [data.bathroomCount],
+                'type': [data.type],
+                'subtype': [data.subtype],
+                'postCode': [data.postCode],
+                'hasBasement': [data.hasBasement],
+                'buildingCondition': [data.buildingCondition],
+                'buildingConstructionYear': [data.buildingConstructionYear],
+                'hasTerrace': [data.hasTerrace],
+                'floodZoneType': [data.floodZoneType],
+                'heatingType': [data.heatingType],
+                'kitchenType': [data.kitchenType],
+                'gardenOrientation': [data.gardenOrientation],
+                'hasSwimmingPool': [data.hasSwimmingPool],
+                'terraceOrientation': [data.terraceOrientation],
+                'epcScore': [data.epcScore]
+                })
 
-    prediction = mixed_pipe.predict(test_data)
+    prediction = mixed_pipe.predict(new_house)
     return { 'price' : prediction[0] }
